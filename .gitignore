@@ -12,3 +12,6 @@ dist/
 # Logs + OS cruft
 *.log
 .DS_Store
+
+# npm pack output
+*.tgz
