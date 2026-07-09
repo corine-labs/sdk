@@ -1,0 +1,120 @@
+# Corine Agent Kit — full reference (@corine/core, @corine/cli)
+
+> The safe-by-construction agent runtime for Solana. Every trade goes through ONE guarded execution spine. There is no public path that executes a trade any other way. Bring your own RPC, keys, data and LLM — no secret is embedded. TypeScript-first, Apache-2.0, Node >= 18.
+
+This file is the complete, self-contained reference. Everything below is accurate to the shipped API.
+
+## Install
+
+```
+npm install @corine/core          # SDK
+npm install -g @corine/cli        # CLI
+```
+
+## The one idea: the guarded spine
+
+Every trade — a one-shot `execute`, a CLI `buy`, or an agent action — passes these gates in this order:
+
+1. `kill-switch` — global halt; unconditional.
+2. `idempotency` — a deterministic key can never execute twice; the broadcast signature is recorded before confirmation (no double-send).
+3. `mint-sanity` — valid, non-identical base58 mints.
+4. `per-tx cap` (`maxPerTxUsd`) — mandatory.
+5. `daily cap` (`dailyCapUsd`) — mandatory; the second backstop.
+6. `SOL-for-fees` — refuse if the wallet can't cover fees.
+7. `freshness` — refuse on a stale decision (`stale_trigger`) or no live price (`stale_price`).
+8. `rug gate` — OFF by default; score always computed + recorded; only blocks when enabled.
+9. `leg dispatch` — the fill venue (`jupiter` by default). Runs ONLY after all gates pass.
+
+`repositionExistingFunds: true` skips gates 4+5 and the daily-spend record (for rebalances/withdrawals of funds already owned); every other gate still applies. This mirrors how the perp leg treats reduce-only closes.
+
+The fill venue is the only pluggable part. A forker implements `ExecutorLeg` and their venue is STILL behind the whole stack. The package does not export a raw `executeSwap`.
+
+## Init
+
+```ts
+import { createCorine, LocalSigner } from "@corine/core";
+
+const corine = createCorine({
+  rpc: { endpoint: process.env.RPC_URL! },                 // required; or pass an RpcProvider
+  signer: LocalSigner.fromBase58(process.env.SECRET_KEY!), // your key, custodial, stays local
+});
+```
+
+`CorineConfig`: `rpc` (RpcProvider | `{ endpoint, commitment?, cluster? }`, required), `signer?`, `keystore?`, `jupiter?` (`{ restBaseUrl?, swapBaseUrl?, apiKey?, timeoutMs? }`), `prices?`, `quotes?`, `rug?`, `store?` (default `InMemoryStore`), `notifier?` (default `ConsoleNotifier`), `llm?`, `memory?`, `legs?`, `registry?`, `safety?` (Partial<SafetyConfig>).
+
+## Corine API
+
+- `execute(input: ExecuteInput): Promise<GuardedResult>` — the ONLY trade method.
+- `quote({ inputMint, outputMint, amountUsd, slippageBps? }): Promise<SwapQuote>` — read-only preview.
+- `price(mint): Promise<number>` — live USD, 0 if unavailable.
+- `agents: AgentRuntime`.
+- `killSwitch: { enable(reason?), disable(), status() }`.
+- `store`, `registry`, `rpc`, `cluster`.
+
+`ExecuteInput`: `{ outputMint, inputMint?(=SOL), amountUsd, side?("buy"|"sell"), maxPerTxUsd (required), dailyCapUsd (required), slippageBps?, rugGate?, allowRisky?, repositionExistingFunds?, evaluatedAtMs?, leg?, inputAmountAtomic?, userId?, signer?, idempotencyKey? }`. If `idempotencyKey` is omitted, a 30-second bucketed key is generated (double-submit protection); pass a stable key for retry-safety.
+
+`GuardedResult`: `{ status: "executed"|"blocked"|"failed"|"noop", blockedBy?, reason?, txHash?, fill?, slippageBps?, rugScore?, auditId? }`.
+
+`BlockReason`: `kill_switch | not_whitelisted | over_caps | over_daily_cap | below_min | insufficient_sol | stale_trigger | stale_price | rug | inflight | internal`.
+
+## Example: guarded swap
+
+```ts
+const res = await corine.execute({
+  inputMint: SOL_MINT, outputMint: USDC_MINT, amountUsd: 10, side: "buy",
+  maxPerTxUsd: 100, dailyCapUsd: 500, evaluatedAtMs: Date.now(),
+});
+res.status === "executed" ? console.log(res.txHash) : console.log(res.blockedBy, res.reason);
+```
+
+## The seven interface seams
+
+You supply implementations + your keys; the SDK ships a default for each.
+
+- `RpcProvider` — `getBalanceLamports`, `sendRawTransaction`, `confirmSignature`, `getLatestBlockhash`, `cluster`. Default `Web3RpcProvider({ endpoint })`.
+- `Signer` — `publicKey()`, `signTransaction(tx)`, optional `keypair()`. `Keystore` — `getSigner(ref)`. Defaults `LocalSigner`, `SingleKeystore`, `AesKeystore`.
+- `PriceSource` — `getPriceUsd(mint)` (return 0 when unpriceable). `QuoteSource` — `atomicInputForUsd`, `getQuote`. `RugChecker` — `checkToken`. Defaults `JupiterClient` (price+quote), `NoopRugChecker`.
+- `Store` — `isKillSwitchEnabled/setKillSwitch/getKillSwitchReason`, `beginGuard/recordSentSig/completeGuard/failGuard`, `checkDailySpend/recordDailySpend`, `recordAudit`. Defaults `InMemoryStore` (dev), `FileStore` (durable).
+- `Notifier` — `send(event)`. Defaults `ConsoleNotifier`, `SilentNotifier`.
+- `LLMProvider` (optional) — `isConfigured()`, `complete(tier, messages, opts?)`. Default `OpenRouterLLM` (bring your key; degrades honestly when absent).
+- `MemoryStore` (optional) — `remember`, `recall`. Default `InMemoryMemory` (keyword; reports `semanticAvailable:false`).
+- `ExecutorLeg` (pluggable fill venue) — `{ name, fill(ctx) }`. Default `JupiterLeg`. `ctx.onBroadcast(sig)` must be called on the first signature.
+
+## Agents
+
+Agent types: `DCA | DIP_BUYER | LIMIT_ORDER | LADDERED_EXIT | WALLET_COPY | CUSTOM`. Built-in handlers: `dcaHandler, dipBuyerHandler, limitOrderHandler, ladderedExitHandler` (registered by default). A handler implements `AgentTypeHandler = { type, evaluate(strategy, ctx) => TradeProposal | null }` and may only PROPOSE; the runtime executes proposals through the spine with the agent's caps.
+
+`AgentRuntime`: `deploy({ strategy, userId, walletRef?, state? }) => Agent`, `runOnce(agentId) => GuardedResult | null`, `get/list/pause/resume/kill`. Scheduling is yours — call `runOnce` on your cadence; there is no background scheduler.
+
+Strategy (zod, caps MANDATORY): `{ name, agentType, outputMint, inputMint?(=SOL), amountUsd, intervalSeconds?, cron?, priceThresholdUsd?, watchedWallet?, ladder?: {multiplier, sellPercent}[], exitConditions?, caps: { maxPerTxUsd, dailyCapUsd, slippageBps?, rugGate? } }`.
+
+```ts
+const agent = await corine.agents.deploy({
+  userId: "me",
+  strategy: { name: "DCA", agentType: "DCA", outputMint, amountUsd: 5, intervalSeconds: 3600,
+              caps: { maxPerTxUsd: 10, dailyCapUsd: 50 } },
+});
+await corine.agents.runOnce(agent.id); // call on a schedule
+```
+
+## Custody & safety honesty
+
+Using `LocalSigner`/`AesKeystore` is **custodial** — the process signs on the user's behalf. Never described as "non-custodial"; never say funds are "safe". Caps + kill-switch are backstops on a custodial key. The gates guarantee exactly one thing: you cannot execute a trade that skips them. They do NOT protect against market loss, a compromised key, a dishonest adapter, or non-durability you didn't configure (use `FileStore`/Postgres in production or idempotency + daily caps reset on restart). Full detail: safety-model.md.
+
+## CLI (@corine/cli)
+
+Commands: `quote`, `buy`, `sell`, `price`, `kill on|off|status`, `deploy`, `agents list|run <id>`, `help`. Global flags: `--json` (envelope `{ok, command, data?, error?{code,message}}`), `--yes` (skip confirm; required in `--json` mode for money-moving), `--quote-only` (preview), `--slippage <bps>`, `--in/--out/--usd`. Env: `CORINE_RPC_URL` (required), `CORINE_KEYPAIR` (keyfile path or base58; stays local), `CORINE_MAX_PER_TX_USD` (100), `CORINE_DAILY_CAP_USD` (500), `CORINE_JUPITER_KEY?`, `CORINE_RUG_GATE?`, `CORINE_STATE_FILE?`. Same spine — caps + kill-switch apply.
+
+```
+corine quote --in So111...112 --out EPjF...Dt1v --usd 10 --json
+corine buy   --out <mint> --usd 5 --yes
+corine kill on
+```
+
+## Not in the open packages
+
+Billing/credits/Dodo, x402, hosted infra (managed DB/queues/API/dashboard/Telegram), and all keys. The runtime never requires billing — a trade is never credit-gated. See whats-open.md.
+
+## MCP
+
+Expose `corine_price/quote/buy/sell/kill` to an LLM over the Model Context Protocol; the tools are thin wrappers over the spine, so caps + kill-switch still apply. Reference server: mcp.md.

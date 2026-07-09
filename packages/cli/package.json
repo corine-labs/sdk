@@ -1,0 +1,42 @@
+{
+  "name": "@corine/cli",
+  "version": "0.1.0",
+  "description": "Terminal trading through the Corine safe-by-construction spine. Quote, buy, sell, deploy agents, and hit the kill switch — human-readable by default, --json on every command. Your keys stay local.",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "bin": {
+    "corine": "bin/corine.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": ["solana", "cli", "trading", "jupiter", "agent", "corine"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corine-labs/sdk",
+    "directory": "packages/cli"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@corine/core": "^0.1.0",
+    "@solana/web3.js": "^1.98.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

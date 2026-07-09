@@ -1,0 +1,54 @@
+{
+  "name": "@corine/core",
+  "version": "0.1.0",
+  "description": "The safe-by-construction agent runtime for Solana. Every trade goes through one guarded execution spine — kill-switch, caps, freshness, idempotency, rug — by construction. Bring your own RPC, keys, data and LLM.",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "solana",
+    "agent",
+    "trading",
+    "defi",
+    "jupiter",
+    "safe",
+    "guarded-execution",
+    "ai-agent",
+    "sdk"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corine-labs/sdk",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/corine-labs/sdk/tree/main/packages/core",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "tsx test/spine.test.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.0",
+    "bs58": "^6.0.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

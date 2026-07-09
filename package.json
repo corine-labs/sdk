@@ -1,0 +1,25 @@
+{
+  "name": "corine-agent-kit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The safe-by-construction agent runtime for Solana — SDK (@corine/core) + CLI (@corine/cli). Every trade goes through one guarded execution spine. Bring your own RPC, keys, data and LLM.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/corine-labs/sdk"
+  },
+  "homepage": "https://github.com/corine-labs/sdk",
+  "workspaces": [
+    "packages/core",
+    "packages/cli"
+  ],
+  "scripts": {
+    "build": "npm run build -w @corine/core && npm run build -w @corine/cli",
+    "test": "npm test -w @corine/core",
+    "typecheck": "npm run typecheck -w @corine/core && npm run typecheck -w @corine/cli",
+    "check:secrets": "bash scripts/check-no-secrets.sh"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

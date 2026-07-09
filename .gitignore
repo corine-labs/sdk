@@ -1,0 +1,14 @@
+# Dependencies + build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Local secrets + state — NEVER commit these
+.env
+.env.local
+.env.*.local
+.corine/
+
+# Logs + OS cruft
+*.log
+.DS_Store

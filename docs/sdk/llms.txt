@@ -1,0 +1,30 @@
+# Corine Agent Kit (@corine/core)
+
+> The safe-by-construction agent runtime for Solana. Every trade — one-shot, CLI, or agent — goes through ONE guarded execution spine (kill-switch → idempotency → mint-sanity → per-tx cap → daily cap → SOL-for-fees → freshness → optional rug → leg dispatch). There is no public path that executes a trade any other way. Bring your own RPC, keys, data and LLM; no secret is embedded. TypeScript-first, Apache-2.0.
+
+Key facts an agent needs:
+- Install: `npm install @corine/core` (Node >= 18). CLI: `npm install -g @corine/cli`.
+- Init: `createCorine({ rpc: { endpoint }, signer })` → a `Corine`. The only trade method is `corine.execute(input)`.
+- Caps are MANDATORY (`maxPerTxUsd`, `dailyCapUsd`). The kill-switch is unconditional. The rug gate is OFF by default (score still recorded).
+- Custody: using `LocalSigner`/`AesKeystore` is CUSTODIAL (the process signs). Never described as "non-custodial".
+
+## Docs
+- [Quickstart](quickstart.md): install → configure with your keys → first guarded trade in under 5 minutes.
+- [Core concepts](core-concepts.md): the runtime, the safety spine and its gate order, the seven pluggable seams, agent types and the registry.
+- [API reference](api-reference.md): every public export, typed — `createCorine`, `Corine`, `ExecuteInput`, `GuardedResult`, the interfaces, default adapters, schema, `AgentRuntime`.
+- [Safety model](safety-model.md): what the gates guarantee, what they do not, and the honest custody disclosure. Read this before shipping.
+
+## Guides
+- [Build a custom agent type](guides/build-a-custom-agent-type.md): implement `AgentTypeHandler` — a handler proposes a trade; the runtime executes it through the spine.
+- [Plug a data source](guides/plug-a-data-source.md): implement `PriceSource` (return 0 when you can't price, so the freshness gate refuses to trade blind).
+- [Durable store](guides/durable-store.md): the `Store` interface holds the kill-switch, idempotency guard, daily-spend ledger and audit — use `FileStore` or your own Postgres/SQLite/Redis in production.
+- [Deploy and monitor](guides/deploy-and-monitor.md): `agents.deploy(strategy)` then `agents.runOnce(id)` on your schedule.
+- [Integrate a frontend](guides/integrate-a-frontend.md): run the runtime server-side, expose thin endpoints; never ship a key to the browser.
+
+## Reference
+- [SKILL.md](SKILL.md): how an LLM/agent should call this SDK as a tool.
+- [CLI](../../packages/cli/README.md): `quote`, `buy`, `sell`, `price`, `kill`, `deploy`, `agents` — human by default, `--json` on every command.
+- [MCP](mcp.md): expose the SDK's core actions (quote/buy/sell/kill) to an LLM over the Model Context Protocol.
+
+## What is NOT in this package
+- Billing / credits / Dodo payments, x402 monetization, hosted infrastructure, and any API keys — those stay in the private Corine product. See [What's open vs hosted](whats-open.md).

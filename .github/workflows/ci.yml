@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: Apache-2.0
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  zero-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zero-secrets gate (hard fail on any leaked key or private host)
+        run: bash scripts/check-no-secrets.sh
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs: zero-secrets
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install (workspaces)
+        run: npm install --no-audit --no-fund
+      - name: Build core + CLI
+        run: npm run build
+      - name: Test the guarded spine
+        run: npm test
+      - name: Typecheck examples
+        working-directory: packages/core
+        run: npx tsc --noEmit -p examples/tsconfig.json
