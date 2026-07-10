@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>corine · the safe by construction agent runtime for Solana</title>
+<meta name="description" content="Docs for the Corine SDK and CLI. One guarded execution spine, every trade behind the same gates. Bring your own RPC, keys, data, and LLM.">
+<meta property="og:title" content="corine · safe by construction agent runtime for Solana">
+<meta property="og:description" content="One guarded execution spine. SDK and CLI docs.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0f'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%2314f195'/%3E%3C/svg%3E">
+</head>
+<body>
+<style>
+  :root{
+    --ground:#0a0a0f; --ground-2:#0c0c12;
+    --surface:#101018; --surface-2:#14141e;
+    --line:rgba(176,166,224,.10); --line-2:rgba(176,166,224,.17);
+    --text:#eceaf4; --dim:#9a9aae; --faint:#6b6b80;
+    --purple:#9945ff; --purple-2:#b97bff; --green:#14f195;
+    --warm:#e5c07b; --str:#9fe7c4;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ground);color:var(--text);
+    font-family:var(--sans);font-size:16px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  ::selection{background:rgba(153,69,255,.32);color:#fff}
+  a{color:inherit;text-decoration:none}
+
+  /* ambient */
+  .glow{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .glow::before,.glow::after{content:"";position:absolute;border-radius:50%;filter:blur(120px);opacity:.5}
+  .glow::before{width:620px;height:620px;top:-260px;left:-120px;background:radial-gradient(circle,rgba(153,69,255,.34),transparent 65%)}
+  .glow::after{width:520px;height:520px;top:120px;right:-160px;background:radial-gradient(circle,rgba(20,241,149,.13),transparent 60%)}
+  .grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+    background-image:radial-gradient(rgba(255,255,255,.9) .5px,transparent .5px);background-size:3px 3px}
+
+  .shell{position:relative;z-index:1;display:grid;grid-template-columns:264px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:0}
+
+  /* sidebar */
+  .side{position:sticky;top:0;height:100vh;padding:34px 26px 40px;border-right:1px solid var(--line);
+    display:flex;flex-direction:column;overflow-y:auto}
+  .mark{display:flex;align-items:baseline;gap:9px;margin-bottom:2px}
+  .mark b{font-family:var(--mono);font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+  .mark .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);transform:translateY(-2px)}
+  .mark small{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.14em;text-transform:uppercase}
+  .nav{margin-top:30px;display:flex;flex-direction:column;gap:1px}
+  .nav a{font-size:13.5px;color:var(--dim);padding:7px 11px;border-radius:8px;border-left:2px solid transparent;
+    transition:color .18s,background .18s,border-color .18s}
+  .nav a .n{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-right:9px}
+  .nav a:hover{color:var(--text);background:rgba(255,255,255,.02)}
+  .nav a.active{color:var(--text);background:rgba(153,69,255,.09);border-left-color:var(--purple)}
+  .nav a.active .n{color:var(--purple-2)}
+  .side-foot{margin-top:auto;padding-top:26px;font-family:var(--mono);font-size:11px;color:var(--faint);line-height:1.8}
+  .side-foot a{color:var(--dim);border-bottom:1px solid var(--line-2)}
+  .side-foot a:hover{color:var(--purple-2)}
+
+  /* main */
+  .main{padding:0 clamp(24px,5vw,88px) 140px;min-width:0}
+  section{padding-top:96px;scroll-margin-top:24px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--purple-2);margin:0 0 18px}
+  h1{font-size:clamp(38px,5.6vw,62px);line-height:1.02;letter-spacing:-.035em;font-weight:680;margin:0;text-wrap:balance}
+  h2{font-size:clamp(26px,3.4vw,36px);line-height:1.08;letter-spacing:-.028em;font-weight:660;margin:0 0 8px;text-wrap:balance}
+  h3{font-size:16px;letter-spacing:-.01em;font-weight:640;margin:0 0 6px}
+  p{max-width:64ch;color:var(--dim)}
+  p strong{color:var(--text);font-weight:600}
+  .lead{font-size:19px;line-height:1.6;color:#c3c1d2;max-width:60ch}
+  .sec-intro{max-width:62ch;margin-bottom:34px}
+
+  /* hero */
+  .hero{padding-top:64px}
+  .hero h1{margin-top:8px}
+  .hero .lead{margin-top:22px}
+  .cmd{margin:30px 0 14px;display:flex;align-items:stretch;max-width:440px;border:1px solid var(--line-2);border-radius:11px;
+    background:var(--surface);font-family:var(--mono);font-size:13.5px;overflow:hidden}
+  .cmd .p{color:var(--green);padding:13px 4px 13px 15px}
+  .cmd code{flex:1;padding:13px 8px;color:var(--text);white-space:nowrap;overflow-x:auto}
+  .cmd button{border:0;border-left:1px solid var(--line);background:transparent;color:var(--dim);padding:0 16px;cursor:pointer;
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;transition:color .18s,background .18s}
+  .cmd button:hover{color:var(--text);background:rgba(153,69,255,.1)}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .btn{font-family:var(--mono);font-size:13px;letter-spacing:.02em;padding:11px 20px;border-radius:10px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;transition:transform .16s,box-shadow .2s,background .2s,border-color .2s}
+  .btn.primary{background:var(--purple);color:#fff;border:1px solid var(--purple);box-shadow:0 8px 30px -10px rgba(153,69,255,.7)}
+  .btn.primary:hover{transform:translateY(-1px);box-shadow:0 12px 36px -8px rgba(153,69,255,.85)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line-2)}
+  .btn.ghost:hover{border-color:var(--purple-2);color:var(--purple-2)}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
+  .chip{font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:5px 12px;letter-spacing:.03em}
+  .chip b{color:var(--text);font-weight:500}
+
+  /* spine */
+  .spine{margin-top:10px;border-left:1px solid var(--line-2);padding-left:0}
+  .gate{position:relative;display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:18px;
+    padding:16px 20px 16px 26px;border:1px solid var(--line);border-left:0;border-radius:0 12px 12px 0;
+    background:linear-gradient(90deg,rgba(153,69,255,.05),transparent 40%);margin:-1px 0}
+  .gate::before{content:"";position:absolute;left:-1px;top:50%;width:8px;height:8px;border-radius:50%;
+    background:var(--faint);transform:translate(-50%,-50%);transition:background .3s,box-shadow .3s}
+  .gate.lit::before{background:var(--green);box-shadow:0 0 12px var(--green)}
+  .gate .no{font-family:var(--mono);font-size:12px;color:var(--purple-2);letter-spacing:.05em}
+  .gate .nm{font-family:var(--mono);font-size:14.5px;color:var(--text);letter-spacing:-.01em}
+  .gate .ds{grid-column:2;font-size:12.5px;color:var(--faint);margin-top:2px;line-height:1.4}
+  .gate .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+    border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+  .gate.dispatch{background:linear-gradient(90deg,rgba(20,241,149,.09),transparent 45%);border-color:rgba(20,241,149,.24);border-left:0}
+  .gate.dispatch .nm{color:var(--green)}
+  .gate.dispatch .tag{color:var(--green);border-color:rgba(20,241,149,.3)}
+
+  /* code */
+  .code{margin:22px 0;border:1px solid var(--line-2);border-radius:var(--r);background:var(--ground-2);overflow:hidden}
+  .code .bar{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.05em}
+  .code .bar .f{color:var(--dim)}
+  .code .bar button{border:0;background:transparent;color:var(--faint);cursor:pointer;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.08em;text-transform:uppercase;transition:color .18s}
+  .code .bar button:hover{color:var(--purple-2)}
+  .code pre{margin:0;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.72;color:#d4d2e0}
+  .tok-com{color:var(--faint);font-style:italic}
+  .tok-str{color:var(--str)}
+  .tok-key{color:var(--purple-2)}
+  .tok-num{color:var(--warm)}
+  .tok-flag{color:var(--purple-2)}
+
+  /* grids */
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--surface),var(--ground-2));padding:20px 22px;transition:border-color .2s,transform .2s}
+  .card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+  .card .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--purple-2);margin-bottom:9px}
+  .card p{font-size:13.5px;margin:0;color:var(--dim)}
+  .card .def{font-family:var(--mono);font-size:11.5px;color:var(--faint);margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+  .card .def b{color:var(--green);font-weight:500}
+
+  /* table */
+  .tbl{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:20px 0}
+  .row{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:13px 18px;border-top:1px solid var(--line);align-items:baseline}
+  .row:first-child{border-top:0}
+  .row .c{font-family:var(--mono);font-size:13px;color:var(--text)}
+  .row .d{font-size:13.5px;color:var(--dim)}
+  .row .d b{color:var(--text);font-weight:600}
+
+  /* cli tabs */
+  .tabs{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;margin-bottom:14px}
+  .tabs button{border:0;background:transparent;color:var(--dim);font-family:var(--mono);font-size:12px;padding:8px 18px;cursor:pointer;
+    letter-spacing:.04em;transition:color .18s,background .18s}
+  .tabs button.on{background:rgba(153,69,255,.14);color:var(--text)}
+  .pane{display:none}.pane.on{display:block}
+
+  /* callout */
+  .note{border:1px solid var(--line-2);border-left:2px solid var(--purple);border-radius:0 12px 12px 0;
+    background:rgba(153,69,255,.05);padding:16px 20px;margin:22px 0}
+  .note.safe{border-left-color:var(--green);background:rgba(20,241,149,.045)}
+  .note .t{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--purple-2);margin-bottom:6px}
+  .note.safe .t{color:var(--green)}
+  .note p{margin:0;font-size:14px;color:#c3c1d2;max-width:66ch}
+
+  /* two-col split */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+  .split .col{border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;background:var(--ground-2)}
+  .split .col .h{font-family:var(--mono);font-size:12px;letter-spacing:.05em;margin-bottom:12px}
+  .split .col.keep .h{color:var(--green)}
+  .split .col.drop .h{color:var(--dim)}
+  .split ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .split li{font-size:13.5px;color:var(--dim);padding-left:20px;position:relative}
+  .split li::before{position:absolute;left:0;font-family:var(--mono);font-size:12px}
+  .split .keep li::before{content:"+";color:var(--green)}
+  .split .drop li::before{content:"×";color:var(--faint)}
+
+  /* proof */
+  .proof{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border:1px solid rgba(20,241,149,.22);border-radius:var(--r);
+    background:rgba(20,241,149,.045);padding:16px 20px;margin-top:22px}
+  .proof .b{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+  .proof .sig{font-family:var(--mono);font-size:12px;color:var(--dim);word-break:break-all;flex:1;min-width:200px}
+  .proof a{color:var(--green);font-family:var(--mono);font-size:12px;border-bottom:1px solid rgba(20,241,149,.35);white-space:nowrap}
+
+  footer{margin-top:120px;padding-top:34px;border-top:1px solid var(--line);display:flex;justify-content:space-between;
+    align-items:center;flex-wrap:wrap;gap:18px}
+  footer .fm{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  footer .fl{display:flex;gap:22px;font-family:var(--mono);font-size:12px}
+  footer .fl a{color:var(--dim)}footer .fl a:hover{color:var(--purple-2)}
+
+  /* reveal */
+  [data-r]{opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.2,.6,.2,1),transform .6s cubic-bezier(.2,.6,.2,1)}
+  [data-r].in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){[data-r]{opacity:1;transform:none;transition:none}}
+
+  /* responsive */
+  .menu-btn{display:none}
+  @media (max-width:900px){
+    .shell{grid-template-columns:1fr}
+    .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);flex-direction:row;
+      align-items:center;justify-content:space-between;padding:16px 22px}
+    .nav,.side-foot{display:none}
+    .g3,.g2,.split{grid-template-columns:1fr}
+    .main{padding:0 22px 100px}
+    section{padding-top:72px}
+  }
+</style>
+
+<div class="glow"></div>
+<div class="grain"></div>
+
+<div class="shell">
+  <aside class="side">
+    <div class="mark"><b>corine</b><span class="dot"></span></div>
+    <div class="mark" style="margin-top:0"><small>agent runtime · solana</small></div>
+    <nav class="nav">
+      <a href="#top" data-sec="top"><span class="n">00</span>Overview</a>
+      <a href="#spine" data-sec="spine"><span class="n">01</span>The spine</a>
+      <a href="#quickstart" data-sec="quickstart"><span class="n">02</span>Quickstart</a>
+      <a href="#sdk" data-sec="sdk"><span class="n">03</span>SDK</a>
+      <a href="#adapters" data-sec="adapters"><span class="n">04</span>Adapters</a>
+      <a href="#agents" data-sec="agents"><span class="n">05</span>Agents</a>
+      <a href="#cli" data-sec="cli"><span class="n">06</span>CLI</a>
+      <a href="#safety" data-sec="safety"><span class="n">07</span>Safety model</a>
+      <a href="#open" data-sec="open"><span class="n">08</span>Open vs hosted</a>
+    </nav>
+    <div class="side-foot">
+      v0.1.1 · apache 2.0<br>
+      <a href="https://www.npmjs.com/package/@h4rsharma/corine-core" target="_blank" rel="noopener">npm</a> ·
+      <a href="https://github.com/corine-labs/sdk" target="_blank" rel="noopener">github</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- OVERVIEW -->
+    <section id="top" class="hero" style="scroll-margin-top:0">
+      <p class="eyebrow" data-r>Open source · Apache 2.0 · Solana</p>
+      <h1 data-r>The safe by construction<br>agent runtime for Solana.</h1>
+      <p class="lead" data-r>One guarded execution spine. Every trade passes the same deterministic gates, by construction, and there is no public path that reaches a venue any other way. Bring your own RPC, keys, data, and LLM. No secret is embedded.</p>
+
+      <div class="cmd" data-r>
+        <span class="p">$</span><code id="inst">npm install @h4rsharma/corine-core</code>
+        <button data-copy="npm install @h4rsharma/corine-core">Copy</button>
+      </div>
+
+      <div class="cta" data-r>
+        <a class="btn primary" href="#quickstart">Start building →</a>
+        <a class="btn ghost" href="https://github.com/corine-labs/sdk" target="_blank" rel="noopener">GitHub</a>
+      </div>
+
+      <div class="meta" data-r>
+        <span class="chip"><b>@h4rsharma/corine-core</b></span>
+        <span class="chip"><b>@h4rsharma/corine-cli</b></span>
+        <span class="chip">TypeScript</span>
+        <span class="chip">Node <b>18+</b></span>
+        <span class="chip">Jupiter · pump.fun · perps</span>
+      </div>
+    </section>
+
+    <!-- SPINE -->
+    <section id="spine">
+      <p class="eyebrow" data-r>01 — The one idea</p>
+      <h2 data-r>Nine gates, one order, no way around.</h2>
+      <p class="sec-intro" data-r>Every trade the SDK executes runs through a single function. It passes nine deterministic gates in a fixed order, then dispatches to a fill venue. A forker adds a venue by implementing an interface, and it still sits behind every gate. That is the moat, and the safety guarantee.</p>
+
+      <div class="spine" id="spineList">
+        <div class="gate" data-r><div><span class="no">01</span></div><div><span class="nm">kill_switch</span><div class="ds">A global halt. When on, every trade is refused. Unconditional.</div></div><span class="tag">halt</span></div>
+        <div class="gate" data-r><div><span class="no">02</span></div><div><span class="nm">idempotency</span><div class="ds">A deterministic key can never execute twice. The signature is recorded before confirmation.</div></div><span class="tag">no double</span></div>
+        <div class="gate" data-r><div><span class="no">03</span></div><div><span class="nm">mint_sanity</span><div class="ds">Valid, non identical base58 mints. Routability is proven by the quote.</div></div><span class="tag">validate</span></div>
+        <div class="gate" data-r><div><span class="no">04</span></div><div><span class="nm">per_tx_cap</span><div class="ds">A proposal above your per trade cap is blocked. Mandatory.</div></div><span class="tag">cap</span></div>
+        <div class="gate" data-r><div><span class="no">05</span></div><div><span class="nm">daily_cap</span><div class="ds">The second backstop on a custodial key. Skipped only when repositioning funds you already hold.</div></div><span class="tag">cap</span></div>
+        <div class="gate" data-r><div><span class="no">06</span></div><div><span class="nm">sol_for_fees</span><div class="ds">Refuses to trade when the wallet cannot cover fees, so nothing doomed is broadcast.</div></div><span class="tag">funds</span></div>
+        <div class="gate" data-r><div><span class="no">07</span></div><div><span class="nm">freshness</span><div class="ds">No stale decision, no dead price feed. No live price means refuse to trade blind.</div></div><span class="tag">fresh</span></div>
+        <div class="gate" data-r><div><span class="no">08</span></div><div><span class="nm">rug_gate</span><div class="ds">Off by default. The score is always computed and recorded. On, it blocks flagged tokens.</div></div><span class="tag">optional</span></div>
+        <div class="gate dispatch" data-r><div><span class="no" style="color:var(--green)">→</span></div><div><span class="nm">leg.fill</span><div class="ds">The pluggable venue: jupiter, pump curve, perp, prediction. It runs only after every gate passes.</div></div><span class="tag">execute</span></div>
+      </div>
+    </section>
+
+    <!-- QUICKSTART -->
+    <section id="quickstart">
+      <p class="eyebrow" data-r>02 — Under five minutes</p>
+      <h2 data-r>Configure with your keys, run a guarded trade.</h2>
+      <p class="sec-intro" data-r>Provide your RPC and your signer. Everything else has a safe default: an in memory store, a console notifier, and the Jupiter price, quote, and fill leg. Caps are required, so there is no way to run an uncapped trade.</p>
+
+      <div class="code" data-r>
+        <div class="bar"><span class="f">first-trade.ts</span><button data-copy-el="q1">Copy</button></div>
+        <pre data-lang="ts" id="q1">import { createCorine, LocalSigner, SOL_MINT, USDC_MINT } from "@h4rsharma/corine-core";
+
+const corine = createCorine({
+  rpc: { endpoint: process.env.RPC_URL },                 // your RPC
+  signer: LocalSigner.fromBase58(process.env.SECRET_KEY), // your key, stays local
+});
+
+const res = await corine.execute({
+  inputMint: SOL_MINT,
+  outputMint: USDC_MINT,
+  amountUsd: 10,
+  side: "buy",
+  maxPerTxUsd: 100,   // required
+  dailyCapUsd: 500,   // required
+});
+
+// "executed" | "blocked" | "failed" | "noop"
+console.log(res.status, res.txHash ?? res.reason);</pre>
+      </div>
+
+      <div class="note safe" data-r>
+        <div class="t">Safe by default</div>
+        <p>An over cap or kill switched trade returns <b>status: "blocked"</b> with a machine readable <b>blockedBy</b>, and the fill venue is never reached. No funds move on a blocked path.</p>
+      </div>
+    </section>
+
+    <!-- SDK -->
+    <section id="sdk">
+      <p class="eyebrow" data-r>03 — The runtime</p>
+      <h2 data-r>One call to configure, one method to trade.</h2>
+      <p class="sec-intro" data-r><code style="font-family:var(--mono);color:var(--purple-2)">createCorine(config)</code> returns a runtime. The only way to move funds is <code style="font-family:var(--mono);color:var(--purple-2)">corine.execute()</code>, which always runs the spine. There is no raw, ungated execute exported anywhere in the package.</p>
+
+      <div class="tbl" data-r>
+        <div class="row"><div class="c">execute(input)</div><div class="d">The one trade method. Returns a <b>GuardedResult</b> with status, txHash, and blockedBy.</div></div>
+        <div class="row"><div class="c">quote(params)</div><div class="d">A read only route preview. No signing, no execution.</div></div>
+        <div class="row"><div class="c">price(mint)</div><div class="d">Live USD price, or zero when a token cannot be priced.</div></div>
+        <div class="row"><div class="c">agents</div><div class="d">Deploy and run trading agents. Every action routes through the spine.</div></div>
+        <div class="row"><div class="c">killSwitch</div><div class="d"><b>enable</b>, <b>disable</b>, <b>status</b>. The global halt every path honors.</div></div>
+      </div>
+
+      <div class="code" data-r>
+        <div class="bar"><span class="f">block-reasons.ts</span><button data-copy-el="q2">Copy</button></div>
+        <pre data-lang="ts" id="q2">type BlockReason =
+  | "kill_switch"  | "over_caps"      | "over_daily_cap"
+  | "below_min"    | "insufficient_sol" | "stale_trigger"
+  | "stale_price"  | "rug"            | "not_whitelisted"
+  | "inflight"     | "internal";</pre>
+      </div>
+    </section>
+
+    <!-- ADAPTERS -->
+    <section id="adapters">
+      <p class="eyebrow" data-r>04 — The seams</p>
+      <h2 data-r>Seven pluggable seams. Your keys, your providers.</h2>
+      <p class="sec-intro" data-r>The runtime depends on interfaces, never on a concrete provider or endpoint. Each ships a working default, and you swap in your own with minimal friction. No Corine secret lives in the package.</p>
+
+      <div class="grid g3">
+        <div class="card" data-r><div class="k">RPC</div><p>Read chain state and broadcast. You supply the endpoint.</p><div class="def">default · <b>Web3RpcProvider</b></div></div>
+        <div class="card" data-r><div class="k">Signer</div><p>Custody. Sign in process, or prompt a wallet.</p><div class="def">default · <b>LocalSigner · AesKeystore</b></div></div>
+        <div class="card" data-r><div class="k">Data</div><p>Price, quote, and the optional rug check.</p><div class="def">default · <b>JupiterClient</b></div></div>
+        <div class="card" data-r><div class="k">Store</div><p>Kill switch, idempotency, daily spend, audit.</p><div class="def">default · <b>InMemoryStore · FileStore</b></div></div>
+        <div class="card" data-r><div class="k">Notifier</div><p>Where the runtime reports what it did.</p><div class="def">default · <b>ConsoleNotifier</b></div></div>
+        <div class="card" data-r><div class="k">LLM · Memory</div><p>Optional reasoning and recall, degrade honestly.</p><div class="def">default · <b>OpenRouterLLM · InMemory</b></div></div>
+      </div>
+
+      <div class="code" data-r>
+        <div class="bar"><span class="f">plug-your-own.ts</span><button data-copy-el="q3">Copy</button></div>
+        <pre data-lang="ts" id="q3">import { createCorine, LocalSigner, FileStore } from "@h4rsharma/corine-core";
+
+const corine = createCorine({
+  rpc:     { endpoint: process.env.RPC_URL },
+  signer:  LocalSigner.fromBase58(process.env.SECRET_KEY),
+  store:   new FileStore("./.corine/state.json"), // durable idempotency + caps
+  jupiter: { apiKey: process.env.JUPITER_KEY },   // optional, your key
+});</pre>
+      </div>
+    </section>
+
+    <!-- AGENTS -->
+    <section id="agents">
+      <p class="eyebrow" data-r>05 — Autonomy</p>
+      <h2 data-r>Deploy an agent. It can only propose.</h2>
+      <p class="sec-intro" data-r>An agent type decides when to trade. The runtime executes the proposal through the spine with the agent's caps, so a handler cannot trade directly. Ships with DCA, dip buyer, limit order, and laddered exit, plus a pluggable registry for your own.</p>
+
+      <div class="code" data-r>
+        <div class="bar"><span class="f">dca-agent.ts</span><button data-copy-el="q4">Copy</button></div>
+        <pre data-lang="ts" id="q4">const agent = await corine.agents.deploy({
+  userId: "me",
+  strategy: {
+    name: "BONK DCA",
+    agentType: "DCA",
+    outputMint: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    amountUsd: 5,
+    intervalSeconds: 3600,
+    caps: { maxPerTxUsd: 10, dailyCapUsd: 50 }, // mandatory
+  },
+});
+
+// call on your own schedule; returns a GuardedResult or null
+await corine.agents.runOnce(agent.id);</pre>
+      </div>
+    </section>
+
+    <!-- CLI -->
+    <section id="cli">
+      <p class="eyebrow" data-r>06 — Terminal</p>
+      <h2 data-r>The same spine, from your shell.</h2>
+      <p class="sec-intro" data-r>The CLI trades through the identical guarded spine. Human readable by default, structured on every command with <code style="font-family:var(--mono);color:var(--purple-2)">--json</code>, so agents and scripts consume it too. Your keys stay local. Money moving actions confirm by default.</p>
+
+      <div class="cmd" data-r style="max-width:480px">
+        <span class="p">$</span><code>npm install -g @h4rsharma/corine-cli</code>
+        <button data-copy="npm install -g @h4rsharma/corine-cli">Copy</button>
+      </div>
+
+      <div class="tbl" data-r style="margin-top:22px">
+        <div class="row"><div class="c">corine quote</div><div class="d">Preview a route. Read only.</div></div>
+        <div class="row"><div class="c">corine buy</div><div class="d">Guarded buy. <b>--quote-only</b> to preview, <b>--yes</b> for automation.</div></div>
+        <div class="row"><div class="c">corine sell</div><div class="d">Guarded sell back to USDC.</div></div>
+        <div class="row"><div class="c">corine deploy</div><div class="d">Deploy an agent from flags.</div></div>
+        <div class="row"><div class="c">corine kill</div><div class="d"><b>on</b> · <b>off</b> · <b>status</b>. The emergency halt.</div></div>
+      </div>
+
+      <div class="tabs" data-r>
+        <button class="on" data-tab="human">Human</button>
+        <button data-tab="json">--json</button>
+      </div>
+      <div class="pane on" id="pane-human" data-r>
+        <div class="code" style="margin-top:0">
+          <div class="bar"><span class="f">terminal</span></div>
+          <pre data-lang="bash">$ corine buy --out EPjF…Dt1v --usd 999 --yes
+✗ over_caps: Amount $999 exceeds the per-trade cap of $100.
+
+$ corine kill on
+Kill switch ON — all trades halted.</pre>
+        </div>
+      </div>
+      <div class="pane" id="pane-json" data-r>
+        <div class="code" style="margin-top:0">
+          <div class="bar"><span class="f">terminal · machine readable</span></div>
+          <pre data-lang="bash">$ corine buy --out EPjF…Dt1v --usd 999 --json --yes
+{"ok":false,"command":"buy","data":{"status":"blocked"},
+ "error":{"code":"over_caps","message":"Amount $999 exceeds the per-trade cap of $100."}}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAFETY -->
+    <section id="safety">
+      <p class="eyebrow" data-r>07 — Honest by policy</p>
+      <h2 data-r>The safety model, without overclaims.</h2>
+      <p class="sec-intro" data-r>The guarantee this runtime makes is narrow and real. You cannot execute a trade that skips the gate stack. Everything else is your configuration and your disclosure.</p>
+
+      <div class="note" data-r>
+        <div class="t">Custody, stated plainly</div>
+        <p>Using a local signer is <b>custodial</b>. The process can sign on the user's behalf without a per transaction prompt. This SDK never calls itself non custodial, and never claims funds are safe. The caps and the kill switch are backstops on a custodial key, not a replacement for custody.</p>
+      </div>
+
+      <div class="split" data-r>
+        <div class="col keep">
+          <div class="h">The gates guarantee</div>
+          <ul>
+            <li>No trade skips the gate stack</li>
+            <li>Caps are mandatory, kill switch is unconditional</li>
+            <li>A deterministic key never double executes</li>
+            <li>No live price means refuse to trade blind</li>
+          </ul>
+        </div>
+        <div class="col drop">
+          <div class="h">The gates do not cover</div>
+          <ul>
+            <li>Market risk. Caps limit size, not loss</li>
+            <li>A compromised key or store</li>
+            <li>A dishonest data source you chose</li>
+            <li>Durability you did not configure</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="proof" data-r>
+        <span class="b">Verified on chain</span>
+        <span class="sig">A $2 guarded buy through the published package, finalized on mainnet.</span>
+        <a href="https://solscan.io/tx/2GRVpDR9fN2xtp5Be4tF2BZxB7yabGVdLWfZX3x2LzN4aK4ip3oCmebxW1wuPfF6JnLae1NTrERYpfGnXXK143Vi" target="_blank" rel="noopener">View tx ↗</a>
+      </div>
+    </section>
+
+    <!-- OPEN -->
+    <section id="open">
+      <p class="eyebrow" data-r>08 — Boundaries</p>
+      <h2 data-r>What is open, what stays hosted.</h2>
+      <p class="sec-intro" data-r>The open package is the complete, real runtime, not a teaser. You can install it, bring your keys, and run a guarded trade with nothing else. The runtime never requires billing. A trade is never credit gated.</p>
+
+      <div class="split" data-r>
+        <div class="col keep">
+          <div class="h">In the open package</div>
+          <ul>
+            <li>The guarded spine and gate stack</li>
+            <li>The Jupiter fill leg and pluggable venues</li>
+            <li>The agent runtime and type registry</li>
+            <li>The seven adapter seams with defaults</li>
+            <li>The CLI, docs, llms.txt, SKILL.md, MCP</li>
+          </ul>
+        </div>
+        <div class="col drop">
+          <div class="h">Stays in the hosted product</div>
+          <ul>
+            <li>Billing, credits, and payments</li>
+            <li>x402 monetization</li>
+            <li>Managed database, queues, dashboard</li>
+            <li>Any API key or private endpoint</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="fm">corine · the safe by construction agent runtime for Solana</div>
+      <div class="fl">
+        <a href="https://www.npmjs.com/package/@h4rsharma/corine-core" target="_blank" rel="noopener">npm</a>
+        <a href="https://github.com/corine-labs/sdk" target="_blank" rel="noopener">github</a>
+        <a href="#top">top ↑</a>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  // ---- syntax highlight (single pass, precedence: comment > string > keyword > number > flag) ----
+  var KW = /\b(const|let|var|await|async|import|export|from|return|new|type|interface|function|if|else|for|of|in|true|false|null|undefined|void|as)\b/;
+  function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function hi(pre){
+    var lang = pre.getAttribute("data-lang");
+    var src = pre.textContent;
+    var re = /(\/\/[^\n]*|#[^\n]*|\/\*[\s\S]*?\*\/)|(`[^`]*`|"[^"]*"|'[^']*')|(--?[A-Za-z][\w-]*)|(\b\d[\d_.]*\b)|([A-Za-z_$][\w$]*)/g;
+    var out = "", last = 0, m;
+    while((m = re.exec(src))){
+      out += esc(src.slice(last, m.index));
+      if(m[1]) out += '<span class="tok-com">'+esc(m[1])+'</span>';
+      else if(m[2]) out += '<span class="tok-str">'+esc(m[2])+'</span>';
+      else if(m[3]) out += (lang==="bash" ? '<span class="tok-flag">'+esc(m[3])+'</span>' : esc(m[3]));
+      else if(m[4]) out += '<span class="tok-num">'+esc(m[4])+'</span>';
+      else if(m[5]) out += (KW.test(m[5]) ? '<span class="tok-key">'+esc(m[5])+'</span>' : esc(m[5]));
+      last = re.lastIndex;
+    }
+    out += esc(src.slice(last));
+    pre.innerHTML = out;
+  }
+  document.querySelectorAll("pre[data-lang]").forEach(hi);
+
+  // ---- copy ----
+  function flash(btn){var t=btn.textContent;btn.textContent="Copied";setTimeout(function(){btn.textContent=t;},1200);}
+  document.querySelectorAll("[data-copy]").forEach(function(b){
+    b.addEventListener("click",function(){navigator.clipboard.writeText(b.getAttribute("data-copy")).then(function(){flash(b);});});
+  });
+  document.querySelectorAll("[data-copy-el]").forEach(function(b){
+    b.addEventListener("click",function(){
+      var el=document.getElementById(b.getAttribute("data-copy-el"));
+      navigator.clipboard.writeText(el.textContent).then(function(){flash(b);});
+    });
+  });
+
+  // ---- cli tabs ----
+  document.querySelectorAll(".tabs button").forEach(function(b){
+    b.addEventListener("click",function(){
+      document.querySelectorAll(".tabs button").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on");
+      var t=b.getAttribute("data-tab");
+      document.getElementById("pane-human").classList.toggle("on",t==="human");
+      document.getElementById("pane-json").classList.toggle("on",t==="json");
+    });
+  });
+
+  // ---- reveal on scroll ----
+  var revs=[].slice.call(document.querySelectorAll("[data-r]"));
+  if(reduce){revs.forEach(function(e){e.classList.add("in");});}
+  else{
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});
+    },{rootMargin:"0px 0px -8% 0px",threshold:.08});
+    revs.forEach(function(e){io.observe(e);});
+  }
+
+  // ---- spine sequential light-up ----
+  var gates=[].slice.call(document.querySelectorAll("#spineList .gate"));
+  var lit=false;
+  function lightSpine(){
+    if(lit)return;lit=true;
+    gates.forEach(function(g,i){
+      setTimeout(function(){g.classList.add("lit");}, reduce?0:120*i);
+    });
+  }
+  var sio=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){lightSpine();sio.disconnect();}});
+  },{threshold:.25});
+  var sl=document.getElementById("spineList");if(sl)sio.observe(sl);
+
+  // ---- scrollspy ----
+  var links=[].slice.call(document.querySelectorAll(".nav a"));
+  var map={};links.forEach(function(a){map[a.getAttribute("data-sec")]=a;});
+  var secs=[].slice.call(document.querySelectorAll("section[id]"));
+  var spy=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){a.classList.remove("active");});
+        var a=map[e.target.id];if(a)a.classList.add("active");
+      }
+    });
+  },{rootMargin:"-40% 0px -55% 0px"});
+  secs.forEach(function(s){spy.observe(s);});
+})();
+</script>
+</body>
+</html>
