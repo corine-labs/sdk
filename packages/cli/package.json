@@ -16,7 +16,7 @@
   "keywords": ["solana", "cli", "trading", "jupiter", "agent", "corine"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/corine-labs/sdk",
+    "url": "git+https://github.com/corine-labs/sdk.git",
     "directory": "packages/cli"
   },
   "scripts": {
