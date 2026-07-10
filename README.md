@@ -8,8 +8,8 @@ The differentiator is not more adapters. It is that **every trade goes through o
 
 | Package | What it is |
 | --- | --- |
-| [`@corine/core`](core) | The runtime: the guarded spine, the jupiter fill leg, the agent runtime + type registry, the typed strategy schema, and the seven pluggable adapter seams with working defaults. |
-| [`@corine/cli`](cli) | Terminal trading through the same spine: `quote`, `buy`, `sell`, `price`, `kill`, `deploy`, `agents` — human-readable by default, `--json` on every command. Your keys stay local. |
+| [`@h4rsharma/corine-core`](core) | The runtime: the guarded spine, the jupiter fill leg, the agent runtime + type registry, the typed strategy schema, and the seven pluggable adapter seams with working defaults. |
+| [`@h4rsharma/corine-cli`](cli) | Terminal trading through the same spine: `quote`, `buy`, `sell`, `price`, `kill`, `deploy`, `agents` — human-readable by default, `--json` on every command. Your keys stay local. |
 
 Both are Apache-2.0 and require Node >= 18.
 
@@ -20,7 +20,7 @@ cd packages/core && npm install && npm run build && npm test
 ```
 
 ```ts
-import { createCorine, LocalSigner, SOL_MINT, USDC_MINT } from "@corine/core";
+import { createCorine, LocalSigner, SOL_MINT, USDC_MINT } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },

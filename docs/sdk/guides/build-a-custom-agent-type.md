@@ -1,6 +1,6 @@
 # Build a custom agent type
 
-An agent type decides *when* to trade. In `@corine/core`, that decision is the
+An agent type decides *when* to trade. In `@h4rsharma/corine-core`, that decision is the
 only power a strategy handler has — it **proposes** a trade, and the runtime
 executes the proposal through the [guarded spine](../safety-model.md). A handler
 can never touch a fill venue, a signer, or the caps directly. This is the
@@ -75,7 +75,7 @@ import {
   LocalSigner,
   SOL_MINT,
   type AgentTypeHandler,
-} from "@corine/core";
+} from "@h4rsharma/corine-core";
 
 // A handler that buys only when the token is up >10% vs. a stored reference price.
 const momentumHandler: AgentTypeHandler = {

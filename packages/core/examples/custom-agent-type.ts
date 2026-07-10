@@ -3,7 +3,7 @@
  * executes them through the guarded spine. You get the safety guarantees for free
  * — a handler cannot trade directly, it can only propose.
  *
- * In your project:  import { createCorine, AgentTypeRegistry } from "@corine/core";
+ * In your project:  import { createCorine, AgentTypeRegistry } from "@h4rsharma/corine-core";
  */
 import {
   createCorine,

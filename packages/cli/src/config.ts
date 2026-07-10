@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { createCorine, LocalSigner, FileStore, SilentNotifier, type Corine } from "@corine/core";
+import { createCorine, LocalSigner, FileStore, SilentNotifier, type Corine } from "@h4rsharma/corine-core";
 
 export interface CliContext {
   corine: Corine;

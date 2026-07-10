@@ -1,6 +1,6 @@
 # Core Concepts
 
-`@corine/core` is built around a single idea: **every trade goes through one guarded execution spine.** There is no public function that executes a trade any other way. Understand the spine and the seven seams and you understand the whole SDK.
+`@h4rsharma/corine-core` is built around a single idea: **every trade goes through one guarded execution spine.** There is no public function that executes a trade any other way. Understand the spine and the seven seams and you understand the whole SDK.
 
 ---
 
@@ -9,7 +9,7 @@
 `createCorine(config)` returns a `Corine` — a small, explicit surface:
 
 ```ts
-import { createCorine, LocalSigner } from "@corine/core";
+import { createCorine, LocalSigner } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },
@@ -70,8 +70,8 @@ A **leg** (`ExecutorLeg`) is a pluggable fill venue: Jupiter, a bonding curve, a
 This is the safety guarantee and the moat at once: **a forker adds a fill venue by implementing the `ExecutorLeg` interface, and it is still behind every gate.** There is no public entry point that reaches a leg directly, so you cannot bolt on an unguarded path.
 
 ```ts
-import type { ExecutorLeg, LegContext } from "@corine/core";
-import type { FillResult } from "@corine/core";
+import type { ExecutorLeg, LegContext } from "@h4rsharma/corine-core";
+import type { FillResult } from "@h4rsharma/corine-core";
 
 class MyVenueLeg implements ExecutorLeg {
   readonly name = "my_venue";

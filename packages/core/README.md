@@ -1,14 +1,14 @@
-# @corine/core
+# @h4rsharma/corine-core
 
 **The safe-by-construction agent runtime for Solana.**
 
-`@corine/core` gives you one call — `createCorine(config)` — to spin up a trading
+`@h4rsharma/corine-core` gives you one call — `createCorine(config)` — to spin up a trading
 runtime where **every trade goes through a single guarded execution spine**.
 There is no public path that executes a trade any other way. Bring your own RPC,
 keys, data, and LLM — no Corine secret is embedded.
 
 ```ts
-import { createCorine, LocalSigner } from "@corine/core";
+import { createCorine, LocalSigner } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },
@@ -38,7 +38,7 @@ each gate does and does not protect against.
 ## Install
 
 ```bash
-npm install @corine/core
+npm install @h4rsharma/corine-core
 ```
 
 Requires Node 18+.
@@ -46,7 +46,7 @@ Requires Node 18+.
 ## Quickstart — a guarded swap in 10 lines
 
 ```ts
-import { createCorine, LocalSigner, SOL_MINT, USDC_MINT } from "@corine/core";
+import { createCorine, LocalSigner, SOL_MINT, USDC_MINT } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },
@@ -116,7 +116,7 @@ Agents pair a strategy (what to trade) with a type handler (when to trade). Caps
 are mandatory — there is no uncapped agent.
 
 ```ts
-import { createCorine, LocalSigner, SOL_MINT } from "@corine/core";
+import { createCorine, LocalSigner, SOL_MINT } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },
@@ -158,7 +158,7 @@ holds the idempotency guard and daily ledger) with the same care as the key.
 ## What's open vs. hosted
 
 This package is the runtime. Billing, Dodo, and the hosted infrastructure are
-**not** in `@corine/core` — you run this yourself with your own RPC, keys, and
+**not** in `@h4rsharma/corine-core` — you run this yourself with your own RPC, keys, and
 data.
 
 ## License

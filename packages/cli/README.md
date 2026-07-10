@@ -1,17 +1,17 @@
-# @corine/cli
+# @h4rsharma/corine-cli
 
 **Terminal trading through the Corine safe-by-construction spine.**
 
 `corine` quotes, buys, sells, deploys agents, and hits the kill switch from your
 terminal — human-readable by default, `--json` on every command for scripts and
-agents. It is the **same guarded spine** as [`@corine/core`](../core): your keys
+agents. It is the **same guarded spine** as [`@h4rsharma/corine-core`](../core): your keys
 stay local, and the per-trade cap, daily cap, and kill switch apply to every
 trade by construction.
 
 ## Install
 
 ```bash
-npm install -g @corine/cli
+npm install -g @h4rsharma/corine-cli
 ```
 
 Requires Node 18+.

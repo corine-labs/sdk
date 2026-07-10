@@ -4,7 +4,7 @@
  * cache, anything. The freshness gate REFUSES to trade when you return 0, so a
  * correct source returns 0 (not a stale value) when it genuinely can't price.
  *
- * In your project:  import { createCorine, type PriceSource } from "@corine/core";
+ * In your project:  import { createCorine, type PriceSource } from "@h4rsharma/corine-core";
  */
 import { createCorine, LocalSigner, type PriceSource } from "../src/index";
 

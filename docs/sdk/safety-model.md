@@ -14,7 +14,7 @@ kill-switch → idempotency → mint-sanity → per-tx cap → daily cap
 
 The fill venue (the "leg") is the only pluggable part, and it runs **only after** every applicable gate has passed. A forker who adds a venue implements the `ExecutorLeg` interface — and their venue is still behind the full stack. The package deliberately **does not export** a raw `executeSwap` / `sendTransaction` trade path. Making the unsafe thing easy is a non-goal.
 
-You can verify this yourself: `grep -r "executeSwap\|rawExecute\|unsafeExecute" node_modules/@corine/core/dist` returns nothing tradeable, and the end-to-end test (`packages/core/test/spine.test.ts`) asserts no such symbol is exported.
+You can verify this yourself: `grep -r "executeSwap\|rawExecute\|unsafeExecute" node_modules/@h4rsharma/corine-core/dist` returns nothing tradeable, and the end-to-end test (`packages/core/test/spine.test.ts`) asserts no such symbol is exported.
 
 ## Custody: this is custodial when you sign in-process
 

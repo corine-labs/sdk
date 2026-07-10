@@ -1,6 +1,6 @@
 {
-  "name": "@corine/cli",
-  "version": "0.1.0",
+  "name": "@h4rsharma/corine-cli",
+  "version": "0.1.1",
   "description": "Terminal trading through the Corine safe-by-construction spine. Quote, buy, sell, deploy agents, and hit the kill switch — human-readable by default, --json on every command. Your keys stay local.",
   "license": "Apache-2.0",
   "type": "commonjs",
@@ -28,7 +28,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@corine/core": "^0.1.0",
+    "@h4rsharma/corine-core": "^0.1.0",
     "@solana/web3.js": "^1.98.0"
   },
   "devDependencies": {

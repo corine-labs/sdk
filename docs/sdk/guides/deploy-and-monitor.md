@@ -8,7 +8,7 @@ deploying, scheduling, lifecycle, and reading what happened.
 ## Deploy
 
 ```ts
-import { createCorine, LocalSigner, SOL_MINT } from "@corine/core";
+import { createCorine, LocalSigner, SOL_MINT } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },

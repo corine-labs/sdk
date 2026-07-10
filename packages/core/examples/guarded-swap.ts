@@ -2,7 +2,7 @@
  * Run a single guarded swap. There is no unguarded path — this trade passes the
  * SAME gate stack every agent does.
  *
- * In your project:  import { createCorine } from "@corine/core";
+ * In your project:  import { createCorine } from "@h4rsharma/corine-core";
  */
 import { createCorine, LocalSigner, SOL_MINT, USDC_MINT, FileStore } from "../src/index";
 

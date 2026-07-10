@@ -1,6 +1,6 @@
 # Contributing to Corine Agent Kit
 
-Thanks for helping build the safe-by-construction agent runtime for Solana. This guide covers the two open packages: `@corine/core` and `@corine/cli`.
+Thanks for helping build the safe-by-construction agent runtime for Solana. This guide covers the two open packages: `@h4rsharma/corine-core` and `@h4rsharma/corine-cli`.
 
 ## Ground rules (non-negotiable)
 

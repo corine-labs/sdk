@@ -2,7 +2,7 @@
  * Deploy a DCA agent in ~10 lines. Every buy it makes goes through the guarded
  * spine (kill-switch, caps, freshness, idempotency) — by construction.
  *
- * In your project:  import { createCorine } from "@corine/core";
+ * In your project:  import { createCorine } from "@h4rsharma/corine-core";
  */
 import { createCorine, LocalSigner, SOL_MINT } from "../src/index";
 

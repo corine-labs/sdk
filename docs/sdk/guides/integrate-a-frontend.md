@@ -1,6 +1,6 @@
 # Integrate a frontend
 
-`@corine/core` is a **server-side** runtime. It holds a signer and talks to an
+`@h4rsharma/corine-core` is a **server-side** runtime. It holds a signer and talks to an
 RPC, so it belongs on your backend — never in a browser bundle. The integration
 pattern is simple: run Corine on your server, expose thin endpoints, and call
 them from your frontend.
@@ -13,7 +13,7 @@ holds the key and runs the guarded spine. This is the honest architecture — th
 signer is custodial and lives exactly one place: your server.
 
 ```
-Browser  ──HTTP──▶  Your backend (holds the key, runs @corine/core)  ──▶  Solana RPC
+Browser  ──HTTP──▶  Your backend (holds the key, runs @h4rsharma/corine-core)  ──▶  Solana RPC
    │                        │
    │  quote / execute / kill │  every call still passes the full gate stack
    ▼                        ▼
@@ -27,7 +27,7 @@ preview, a guarded **execute**, and the **kill switch**.
 
 ```ts
 import express from "express";
-import { createCorine, LocalSigner, FileStore, SOL_MINT } from "@corine/core";
+import { createCorine, LocalSigner, FileStore, SOL_MINT } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },

@@ -26,7 +26,7 @@ This mirrors `packages/core/examples/custom-data-source.ts`. Your API key comes
 from your own env — no data credential is ever embedded in the SDK.
 
 ```ts
-import { createCorine, LocalSigner, type PriceSource } from "@corine/core";
+import { createCorine, LocalSigner, type PriceSource } from "@h4rsharma/corine-core";
 
 class BirdeyePriceSource implements PriceSource {
   constructor(private readonly apiKey: string) {}

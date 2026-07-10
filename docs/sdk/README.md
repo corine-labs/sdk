@@ -2,7 +2,7 @@
 
 **The safe-by-construction agent runtime for Solana.** Every trade — one-shot, CLI, or agent — goes through one guarded execution spine. There is no public path that executes a trade any other way.
 
-- Package: [`@corine/core`](../../packages/core) · CLI: [`@corine/cli`](../../packages/cli)
+- Package: [`@h4rsharma/corine-core`](../../packages/core) · CLI: [`@h4rsharma/corine-cli`](../../packages/cli)
 - License: Apache-2.0 · Node >= 18
 
 ## Start here

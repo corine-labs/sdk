@@ -1,9 +1,9 @@
 # API Reference
 
-Every public export of `@corine/core`, with accurate types. Import everything from the package root:
+Every public export of `@h4rsharma/corine-core`, with accurate types. Import everything from the package root:
 
 ```ts
-import { createCorine, LocalSigner /* … */ } from "@corine/core";
+import { createCorine, LocalSigner /* … */ } from "@h4rsharma/corine-core";
 ```
 
 - Node >= 18 · Apache-2.0

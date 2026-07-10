@@ -91,7 +91,7 @@ the spine calls `completeGuard`; on failure, `failGuard`.
 ### `InMemoryStore` — dev only
 
 ```ts
-import { createCorine, InMemoryStore, LocalSigner } from "@corine/core";
+import { createCorine, InMemoryStore, LocalSigner } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },
@@ -107,7 +107,7 @@ anything holding a funded key.
 ### `FileStore` — durable, zero-dependency
 
 ```ts
-import { createCorine, FileStore, LocalSigner } from "@corine/core";
+import { createCorine, FileStore, LocalSigner } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },
@@ -138,7 +138,7 @@ non-negotiables:
 This is a **shape sketch**, not a full implementation — fill in your SQL:
 
 ```ts
-import type { Store, GuardState, DailySpendCheck, AuditRecord } from "@corine/core";
+import type { Store, GuardState, DailySpendCheck, AuditRecord } from "@h4rsharma/corine-core";
 import type { Pool } from "pg";
 
 class PostgresStore implements Store {

@@ -1,6 +1,6 @@
 # What's open vs. what's hosted
 
-`@corine/core` and `@corine/cli` are the **complete, real runtime** — not a teaser. You can `npm install`, bring your own keys, and run a guarded trade with nothing else. This page draws the line so nobody assumes the hosted product's billing or infrastructure is "in the box."
+`@h4rsharma/corine-core` and `@h4rsharma/corine-cli` are the **complete, real runtime** — not a teaser. You can `npm install`, bring your own keys, and run a guarded trade with nothing else. This page draws the line so nobody assumes the hosted product's billing or infrastructure is "in the box."
 
 ## In the open packages (Apache-2.0)
 

@@ -1,6 +1,6 @@
 # MCP — expose the SDK to an LLM
 
-MCP (the Model Context Protocol) is how an LLM host (Claude, an agent framework, an IDE) calls a tool. Exposing `@corine/core` over MCP lets an agent quote, buy, sell, check a price and hit the kill switch — **through the guarded spine**, because these tools are thin wrappers over `corine.execute` / `corine.quote`. There is no MCP tool that trades un-gated; the same caps and kill-switch apply.
+MCP (the Model Context Protocol) is how an LLM host (Claude, an agent framework, an IDE) calls a tool. Exposing `@h4rsharma/corine-core` over MCP lets an agent quote, buy, sell, check a price and hit the kill switch — **through the guarded spine**, because these tools are thin wrappers over `corine.execute` / `corine.quote`. There is no MCP tool that trades un-gated; the same caps and kill-switch apply.
 
 > Whether an LLM can call your SDK is decided by whether you ship an MCP surface. This page is the reference — a complete, working server you can copy.
 
@@ -20,14 +20,14 @@ The caps come from the server's env (never from the model) — the model cannot 
 
 ## Reference server
 
-Requires `@modelcontextprotocol/sdk` and `@corine/core`. Your keys come from the server's environment — never from the model, never committed.
+Requires `@modelcontextprotocol/sdk` and `@h4rsharma/corine-core`. Your keys come from the server's environment — never from the model, never committed.
 
 ```ts
 // mcp-server.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { createCorine, LocalSigner, FileStore, SilentNotifier, SOL_MINT, USDC_MINT } from "@corine/core";
+import { createCorine, LocalSigner, FileStore, SilentNotifier, SOL_MINT, USDC_MINT } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.CORINE_RPC_URL! },

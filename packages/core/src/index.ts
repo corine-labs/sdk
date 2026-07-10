@@ -2,7 +2,7 @@
  * Copyright 2026 Corine.
  * SPDX-License-Identifier: Apache-2.0
  *
- * @corine/core — the safe-by-construction agent runtime for Solana.
+ * @h4rsharma/corine-core — the safe-by-construction agent runtime for Solana.
  *
  * Every trade goes through one guarded execution spine (kill-switch → idempotency
  * → mint-sanity → caps → daily-cap → SOL-for-fees → freshness → rug → leg

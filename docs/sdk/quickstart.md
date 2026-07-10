@@ -1,19 +1,19 @@
 # Quickstart
 
-Install `@corine/core`, wire it to **your own** RPC and key, and run your first guarded trade in under five minutes.
+Install `@h4rsharma/corine-core`, wire it to **your own** RPC and key, and run your first guarded trade in under five minutes.
 
-`@corine/core` is the safe-by-construction agent runtime for Solana. There is exactly one way to move funds — `corine.execute()` — and it always passes the same deterministic gate stack (kill-switch, caps, freshness, idempotency, optional rug). You bring your RPC, keys, and data providers; no Corine secret or endpoint is embedded in the SDK.
+`@h4rsharma/corine-core` is the safe-by-construction agent runtime for Solana. There is exactly one way to move funds — `corine.execute()` — and it always passes the same deterministic gate stack (kill-switch, caps, freshness, idempotency, optional rug). You bring your RPC, keys, and data providers; no Corine secret or endpoint is embedded in the SDK.
 
 - Requirements: **Node >= 18**
 - License: **Apache-2.0**
-- Package: **`@corine/core`** (a companion CLI ships as `@corine/cli`)
+- Package: **`@h4rsharma/corine-core`** (a companion CLI ships as `@h4rsharma/corine-cli`)
 
 ---
 
 ## 1. Install
 
 ```bash
-npm install @corine/core
+npm install @h4rsharma/corine-core
 ```
 
 ## 2. Configure with your keys
@@ -21,7 +21,7 @@ npm install @corine/core
 `createCorine(config)` is the one-call init. The only required field is `rpc`. To sign trades you also pass a `signer` (or a `keystore`). Everything else has a safe default: in-memory store, console notifier, Jupiter price/quote/leg, rug gate off.
 
 ```ts
-import { createCorine, LocalSigner } from "@corine/core";
+import { createCorine, LocalSigner } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },                   // your RPC (or pass an RpcProvider)

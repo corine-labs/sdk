@@ -1,9 +1,9 @@
-# Corine Agent Kit (@corine/core)
+# Corine Agent Kit (@h4rsharma/corine-core)
 
 > The safe-by-construction agent runtime for Solana. Every trade — one-shot, CLI, or agent — goes through ONE guarded execution spine (kill-switch → idempotency → mint-sanity → per-tx cap → daily cap → SOL-for-fees → freshness → optional rug → leg dispatch). There is no public path that executes a trade any other way. Bring your own RPC, keys, data and LLM; no secret is embedded. TypeScript-first, Apache-2.0.
 
 Key facts an agent needs:
-- Install: `npm install @corine/core` (Node >= 18). CLI: `npm install -g @corine/cli`.
+- Install: `npm install @h4rsharma/corine-core` (Node >= 18). CLI: `npm install -g @h4rsharma/corine-cli`.
 - Init: `createCorine({ rpc: { endpoint }, signer })` → a `Corine`. The only trade method is `corine.execute(input)`.
 - Caps are MANDATORY (`maxPerTxUsd`, `dailyCapUsd`). The kill-switch is unconditional. The rug gate is OFF by default (score still recorded).
 - Custody: using `LocalSigner`/`AesKeystore` is CUSTODIAL (the process signs). Never described as "non-custodial".

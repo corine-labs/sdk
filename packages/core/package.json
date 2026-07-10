@@ -1,6 +1,6 @@
 {
-  "name": "@corine/core",
-  "version": "0.1.0",
+  "name": "@h4rsharma/corine-core",
+  "version": "0.1.1",
   "description": "The safe-by-construction agent runtime for Solana. Every trade goes through one guarded execution spine — kill-switch, caps, freshness, idempotency, rug — by construction. Bring your own RPC, keys, data and LLM.",
   "license": "Apache-2.0",
   "type": "commonjs",

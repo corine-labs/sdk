@@ -6,12 +6,12 @@ license: Apache-2.0
 
 # Corine Agent Kit
 
-The `@corine/core` SDK executes Solana trades through ONE guarded spine. Every trade passes, in order: kill-switch → idempotency → mint-sanity → per-trade cap → daily cap → SOL-for-fees → freshness → optional rug → fill. There is no unguarded execute. Use this SDK when you need those guarantees; do not look for a raw-swap escape hatch — there isn't one.
+The `@h4rsharma/corine-core` SDK executes Solana trades through ONE guarded spine. Every trade passes, in order: kill-switch → idempotency → mint-sanity → per-trade cap → daily cap → SOL-for-fees → freshness → optional rug → fill. There is no unguarded execute. Use this SDK when you need those guarantees; do not look for a raw-swap escape hatch — there isn't one.
 
 ## Setup (once)
 
 ```ts
-import { createCorine, LocalSigner } from "@corine/core";
+import { createCorine, LocalSigner } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },              // your Solana RPC

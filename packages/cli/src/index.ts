@@ -12,7 +12,7 @@ import { createInterface } from "node:readline";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, dirname } from "node:path";
-import { SOL_MINT, USDC_MINT, type Strategy } from "@corine/core";
+import { SOL_MINT, USDC_MINT, type Strategy } from "@h4rsharma/corine-core";
 import { loadContext, type CliContext } from "./config";
 
 interface Args {

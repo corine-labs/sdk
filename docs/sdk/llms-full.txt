@@ -1,4 +1,4 @@
-# Corine Agent Kit — full reference (@corine/core, @corine/cli)
+# Corine Agent Kit — full reference (@h4rsharma/corine-core, @h4rsharma/corine-cli)
 
 > The safe-by-construction agent runtime for Solana. Every trade goes through ONE guarded execution spine. There is no public path that executes a trade any other way. Bring your own RPC, keys, data and LLM — no secret is embedded. TypeScript-first, Apache-2.0, Node >= 18.
 
@@ -7,8 +7,8 @@ This file is the complete, self-contained reference. Everything below is accurat
 ## Install
 
 ```
-npm install @corine/core          # SDK
-npm install -g @corine/cli        # CLI
+npm install @h4rsharma/corine-core          # SDK
+npm install -g @h4rsharma/corine-cli        # CLI
 ```
 
 ## The one idea: the guarded spine
@@ -32,7 +32,7 @@ The fill venue is the only pluggable part. A forker implements `ExecutorLeg` and
 ## Init
 
 ```ts
-import { createCorine, LocalSigner } from "@corine/core";
+import { createCorine, LocalSigner } from "@h4rsharma/corine-core";
 
 const corine = createCorine({
   rpc: { endpoint: process.env.RPC_URL! },                 // required; or pass an RpcProvider
@@ -101,7 +101,7 @@ await corine.agents.runOnce(agent.id); // call on a schedule
 
 Using `LocalSigner`/`AesKeystore` is **custodial** — the process signs on the user's behalf. Never described as "non-custodial"; never say funds are "safe". Caps + kill-switch are backstops on a custodial key. The gates guarantee exactly one thing: you cannot execute a trade that skips them. They do NOT protect against market loss, a compromised key, a dishonest adapter, or non-durability you didn't configure (use `FileStore`/Postgres in production or idempotency + daily caps reset on restart). Full detail: safety-model.md.
 
-## CLI (@corine/cli)
+## CLI (@h4rsharma/corine-cli)
 
 Commands: `quote`, `buy`, `sell`, `price`, `kill on|off|status`, `deploy`, `agents list|run <id>`, `help`. Global flags: `--json` (envelope `{ok, command, data?, error?{code,message}}`), `--yes` (skip confirm; required in `--json` mode for money-moving), `--quote-only` (preview), `--slippage <bps>`, `--in/--out/--usd`. Env: `CORINE_RPC_URL` (required), `CORINE_KEYPAIR` (keyfile path or base58; stays local), `CORINE_MAX_PER_TX_USD` (100), `CORINE_DAILY_CAP_USD` (500), `CORINE_JUPITER_KEY?`, `CORINE_RUG_GATE?`, `CORINE_STATE_FILE?`. Same spine — caps + kill-switch apply.
 
